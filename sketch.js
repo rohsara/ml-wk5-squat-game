@@ -14,48 +14,35 @@ let scene,
     mixer,                              // THREE.js animations mixer
     idle,                               // Idle, the default state our character returns to
     squat,
+    burpee,
+    jumpingjack,
     clock = new THREE.Clock(),          // Used for anims, which run to a clock instead of frame rate 
     currentlyAnimating = false,         // Used to check whether characters neck is being used in another anim
     raycaster = new THREE.Raycaster(),  // Used to detect the click on our character
     loaderAnim = document.getElementById('js-loader');
 
 
-const mySoundModelURL = 'https://teachablemachine.withgoogle.com/models/TFur5RUKW/' + 'model.json';
-// let soundModel = './my_model/';
-// let mySoundModel, resultDiv;
+const mySoundModelURL = 'https://teachablemachine.withgoogle.com/models/G470IzpbC/' + 'model.json';
+let mySoundModel, resultDiv;
     
 function preload() {
     mySoundModel = ml5.soundClassifier(mySoundModelURL);
-    // classifier = ml5.soundClassifier(soundModel + 'model.json');
 }
 
 function setup() {
-    // resultDiv = createElement('h1',  '...');
     mySoundModel.classify(gotResults);
-    // classifier.classify(gotResults);
 }
 
 init();
 
 function init() {
-    // const MODEL_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb';
-    const MODEL_PATH = 'squidGirl.glb';
-
-    // let stacy_txt = new THREE.TextureLoader().load('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy.jpg');
-    // stacy_txt.flipY = false; // we flip the texture so that its the right way up
-
-    // const stacy_mtl = new THREE.MeshPhongMaterial({
-    //     map: stacy_txt,
-    //     color: 0xffffff,
-    //     skinning: true
-    // });
+    const MODEL_PATH = 'squidGirl2.glb';
 
     var loader = new THREE.GLTFLoader();
 
     loader.load(
         MODEL_PATH,
         function(gltf) {
-        // A lot is going to happen here
             model = gltf.scene;
             let fileAnimations = gltf.animations;
         
@@ -68,9 +55,7 @@ function init() {
                 if (o.isMesh) {
                   o.castShadow = true;
                   o.receiveShadow = true;
-    //               o.material = stacy_mtl;
                 }
-                // Reference the neck and waist bones
                 if (o.isBone && o.name === 'mixamorigNeck') { 
                     neck = o;
                 }
@@ -87,19 +72,6 @@ function init() {
             loaderAnim.remove();
             mixer = new THREE.AnimationMixer(model);
 
-            // let clips = fileAnimations.filter(val => val.name !== 'idle');
-            
-            // console.log(clips);
-
-            // possibleAnims = clips.map(val => {
-            //     let clip = THREE.AnimationClip.findByName(clips, val.name);
-            //     clip.tracks.splice(3, 3);
-            //     clip.tracks.splice(9, 3);
-            //     clip = mixer.clipAction(clip);
-            //     return clip;
-            //    }
-            // );
-            // based on custon animation, modify based on your model structure
             let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
             
             idleAnim.tracks.splice(3, 3);
@@ -108,11 +80,15 @@ function init() {
             idle = mixer.clipAction(idleAnim);
             idle.play();
 
+            // squat
             let squatAnim = THREE.AnimationClip.findByName(fileAnimations, 'squating');
             squat = mixer.clipAction(squatAnim);
-            // squat.play();
-            
-
+            // burpee
+            let burpeeAnim = THREE.AnimationClip.findByName(fileAnimations, 'burpee');
+            burpee = mixer.clipAction(burpeeAnim);
+            // jumpingjack
+            let jumpingjackAnim = THREE.AnimationClip.findByName(fileAnimations, 'jumpingjack');
+            jumpingjack = mixer.clipAction(jumpingjackAnim);
         },
         undefined, // We don't need this function
         function(error) {
@@ -225,7 +201,7 @@ function resizeRendererToDisplaySize(renderer) {
 window.addEventListener('click', e => raycast(e));
 window.addEventListener('touchend', e => raycast(e, true));
 
-function raycast(e, touch = false, gotResults) {
+function raycast(e, touch = false) {
     var mouse = {};
     if (touch) {
         mouse.x = 2 * (e.changedTouches[0].clientX / window.innerWidth) - 1;
@@ -243,21 +219,15 @@ function raycast(e, touch = false, gotResults) {
     if (intersects[0]) {
         var object = intersects[0].object;
 
-        // if (object.name === 'stacy') {
-
-            if (!currentlyAnimating) {
-                currentlyAnimating = true;
-                playOnClick();
-            }
-        // }
+        if (!currentlyAnimating) {
+            currentlyAnimating = true;
+            playOnClick();
+        }
     }
 
-    // Get a random animation, and play it 
     function playOnClick() {
         console.log('clicked');
-        // let anim = Math.floor(Math.random() * possibleAnims.length) + 0;
         squat.play();
-        // playModifierAnimation(idle, 0.25, possibleAnims[anim], 0.25);
         playModifierAnimation(idle, 0.25, squat, 0.25);
     }
 
@@ -343,33 +313,41 @@ function getMouseDegrees(x, y, degreeLimit) {
 
 function gotResults(err, results) {
     if (err) console.log(err);
+
     if (results) {
         console.log(results[0].label);
+
         if (results[0].confidence > 0.9 && results[0].label === 'Squat') {
-            // resultDiv.html('Result is: ' + results[0].label);
             console.log('squating');
             squat.play();
             playModifierAnimation(idle, 0.25, squat, 0.25);
         } 
-        // else if (results[0].confidence > 0.9 && results[0].label === 'Stop'){
-        //     console.log('stopping');
-        //     idle.play();
-        //     // playModifierAnimation(squat, 0.25, idle, 0.25);
-        // }
-    //   else {
-    //     idle.play();
-    //   }
+
+        else if (results[0].confidence > 0.9 && results[0].label === 'Burpee'){
+            console.log('burpee');
+            burpee.play();
+            playModifierAnimation(idle, 0.25, burpee, 0.25);
+        }
+
+        else if (results[0].confidence > 0.9 && results[0].label === 'JumpingJack'){
+            console.log('jumping jack');
+            jumpingjack.play();
+            playModifierAnimation(idle, 0.25, jumpingjack, 0.25);
+        }
+    
     }
 }
 
 function playModifierAnimation(from, fSpeed, to, tSpeed) {
-    to.setLoop(THREE.LoopOnce);
+    // to.setLoop(THREE.LoopOnce);
+    to.setLoop(THREE.LoopRepeat);
     to.reset();
     to.play();
     from.crossFadeTo(to, fSpeed, true);
+
     setTimeout(function() {
         from.enabled = true;
         to.crossFadeTo(from, tSpeed, true);
         currentlyAnimating = false;
-    }, to._clip.duration * 1000 - ((tSpeed + fSpeed) * 1000));
+    }, to._clip.duration * 2000 - ((tSpeed + fSpeed) * 1000));
 }
