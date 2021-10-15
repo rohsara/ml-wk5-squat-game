@@ -13,6 +13,7 @@ let scene,
     possibleAnims,                      // Animations found in our file
     mixer,                              // THREE.js animations mixer
     idle,                               // Idle, the default state our character returns to
+    squat,
     clock = new THREE.Clock(),          // Used for anims, which run to a clock instead of frame rate 
     currentlyAnimating = false,         // Used to check whether characters neck is being used in another anim
     raycaster = new THREE.Raycaster(),  // Used to detect the click on our character
@@ -22,17 +23,17 @@ let scene,
 init();
 
 function init() {
-    const MODEL_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb';
+    // const MODEL_PATH = 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy_lightweight.glb';
+    const MODEL_PATH = 'squidGirl.glb';
 
-    let stacy_txt = new THREE.TextureLoader().load('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy.jpg');
+    // let stacy_txt = new THREE.TextureLoader().load('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1376484/stacy.jpg');
+    // stacy_txt.flipY = false; // we flip the texture so that its the right way up
 
-    stacy_txt.flipY = false; // we flip the texture so that its the right way up
-
-    const stacy_mtl = new THREE.MeshPhongMaterial({
-    map: stacy_txt,
-    color: 0xffffff,
-    skinning: true
-    });
+    // const stacy_mtl = new THREE.MeshPhongMaterial({
+    //     map: stacy_txt,
+    //     color: 0xffffff,
+    //     skinning: true
+    // });
 
     var loader = new THREE.GLTFLoader();
 
@@ -44,10 +45,15 @@ function init() {
             let fileAnimations = gltf.animations;
         
             model.traverse(o => {
+                
+                // if (o.isBone) {
+                //     console.log(o.name);
+                // }
+
                 if (o.isMesh) {
                   o.castShadow = true;
                   o.receiveShadow = true;
-                  o.material = stacy_mtl;
+    //               o.material = stacy_mtl;
                 }
                 // Reference the neck and waist bones
                 if (o.isBone && o.name === 'mixamorigNeck') { 
@@ -59,23 +65,25 @@ function init() {
             });
 
             // Set the models initial scale
-            model.scale.set(7, 7, 7);   
+            model.scale.set(6, 6, 6);   
             model.position.y = -11;
 
             scene.add(model);
             loaderAnim.remove();
             mixer = new THREE.AnimationMixer(model);
 
-            let clips = fileAnimations.filter(val => val.name !== 'idle');
+            // let clips = fileAnimations.filter(val => val.name !== 'idle');
             
-            possibleAnims = clips.map(val => {
-                let clip = THREE.AnimationClip.findByName(clips, val.name);
-                clip.tracks.splice(3, 3);
-                clip.tracks.splice(9, 3);
-                clip = mixer.clipAction(clip);
-                return clip;
-               }
-            );
+            // console.log(clips);
+
+            // possibleAnims = clips.map(val => {
+            //     let clip = THREE.AnimationClip.findByName(clips, val.name);
+            //     clip.tracks.splice(3, 3);
+            //     clip.tracks.splice(9, 3);
+            //     clip = mixer.clipAction(clip);
+            //     return clip;
+            //    }
+            // );
             // based on custon animation, modify based on your model structure
             let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
             
@@ -84,6 +92,11 @@ function init() {
             
             idle = mixer.clipAction(idleAnim);
             idle.play();
+
+            let squatAnim = THREE.AnimationClip.findByName(fileAnimations, 'squating');
+            squat = mixer.clipAction(squatAnim);
+            // squat.play();
+            
 
         },
         undefined, // We don't need this function
@@ -215,19 +228,23 @@ function raycast(e, touch = false) {
     if (intersects[0]) {
         var object = intersects[0].object;
 
-        if (object.name === 'stacy') {
+        // if (object.name === 'stacy') {
+        // if (object.name === 'Body') {
 
             if (!currentlyAnimating) {
                 currentlyAnimating = true;
                 playOnClick();
             }
-        }
+        // }
     }
 
     // Get a random animation, and play it 
     function playOnClick() {
-        let anim = Math.floor(Math.random() * possibleAnims.length) + 0;
-        playModifierAnimation(idle, 0.25, possibleAnims[anim], 0.25);
+        console.log('clicked');
+        // let anim = Math.floor(Math.random() * possibleAnims.length) + 0;
+        squat.play();
+        // playModifierAnimation(idle, 0.25, possibleAnims[anim], 0.25);
+        playModifierAnimation(idle, 0.25, squat, 0.25);
     }
 
 
