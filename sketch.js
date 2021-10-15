@@ -20,6 +20,21 @@ let scene,
     loaderAnim = document.getElementById('js-loader');
 
 
+const mySoundModelURL = 'https://teachablemachine.withgoogle.com/models/TFur5RUKW/' + 'model.json';
+// let soundModel = './my_model/';
+// let mySoundModel, resultDiv;
+    
+function preload() {
+    mySoundModel = ml5.soundClassifier(mySoundModelURL);
+    // classifier = ml5.soundClassifier(soundModel + 'model.json');
+}
+
+function setup() {
+    // resultDiv = createElement('h1',  '...');
+    mySoundModel.classify(gotResults);
+    // classifier.classify(gotResults);
+}
+
 init();
 
 function init() {
@@ -210,7 +225,7 @@ function resizeRendererToDisplaySize(renderer) {
 window.addEventListener('click', e => raycast(e));
 window.addEventListener('touchend', e => raycast(e, true));
 
-function raycast(e, touch = false) {
+function raycast(e, touch = false, gotResults) {
     var mouse = {};
     if (touch) {
         mouse.x = 2 * (e.changedTouches[0].clientX / window.innerWidth) - 1;
@@ -229,7 +244,6 @@ function raycast(e, touch = false) {
         var object = intersects[0].object;
 
         // if (object.name === 'stacy') {
-        // if (object.name === 'Body') {
 
             if (!currentlyAnimating) {
                 currentlyAnimating = true;
@@ -248,17 +262,17 @@ function raycast(e, touch = false) {
     }
 
 
-    function playModifierAnimation(from, fSpeed, to, tSpeed) {
-        to.setLoop(THREE.LoopOnce);
-        to.reset();
-        to.play();
-        from.crossFadeTo(to, fSpeed, true);
-        setTimeout(function() {
-        from.enabled = true;
-        to.crossFadeTo(from, tSpeed, true);
-        currentlyAnimating = false;
-        }, to._clip.duration * 1000 - ((tSpeed + fSpeed) * 1000));
-    }
+    // function playModifierAnimation(from, fSpeed, to, tSpeed) {
+    //     to.setLoop(THREE.LoopOnce);
+    //     to.reset();
+    //     to.play();
+    //     from.crossFadeTo(to, fSpeed, true);
+    //     setTimeout(function() {
+    //         from.enabled = true;
+    //         to.crossFadeTo(from, tSpeed, true);
+    //         currentlyAnimating = false;
+    //     }, to._clip.duration * 1000 - ((tSpeed + fSpeed) * 1000));
+    // }
 
 }
 
@@ -325,4 +339,37 @@ function getMouseDegrees(x, y, degreeLimit) {
         dy = (degreeLimit * yPercentage) / 100;
     }
     return { x: dx, y: dy };
+}
+
+function gotResults(err, results) {
+    if (err) console.log(err);
+    if (results) {
+        console.log(results[0].label);
+        if (results[0].confidence > 0.9 && results[0].label === 'Squat') {
+            // resultDiv.html('Result is: ' + results[0].label);
+            console.log('squating');
+            squat.play();
+            playModifierAnimation(idle, 0.25, squat, 0.25);
+        } 
+        // else if (results[0].confidence > 0.9 && results[0].label === 'Stop'){
+        //     console.log('stopping');
+        //     idle.play();
+        //     // playModifierAnimation(squat, 0.25, idle, 0.25);
+        // }
+    //   else {
+    //     idle.play();
+    //   }
+    }
+}
+
+function playModifierAnimation(from, fSpeed, to, tSpeed) {
+    to.setLoop(THREE.LoopOnce);
+    to.reset();
+    to.play();
+    from.crossFadeTo(to, fSpeed, true);
+    setTimeout(function() {
+        from.enabled = true;
+        to.crossFadeTo(from, tSpeed, true);
+        currentlyAnimating = false;
+    }, to._clip.duration * 1000 - ((tSpeed + fSpeed) * 1000));
 }
