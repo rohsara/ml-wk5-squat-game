@@ -9,6 +9,10 @@ teachable machine: https://teachablemachine.withgoogle.com/models/TFur5RUKW/
 # Demo
 
 
+https://user-images.githubusercontent.com/70675423/137523360-6baa9a56-a74a-4f77-aa7b-8ed04a0a673b.mp4
+
+
+
 # Resources
 
 Inspired by Nart's controlling 3d model (https://quavaro.github.io/blazepose-3d/) 
