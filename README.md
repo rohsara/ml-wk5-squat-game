@@ -2,7 +2,8 @@
 NYU ITP, Yining Shi's ML for Web FA21 
 
 👉 try it yourself here: https://rohsara.github.io/ml-wk5-squat-game/
-🗣 Say Squat to the Squid Game Doll 
+
+🗣 Say 'Squat', 'Burpee', 'Jumping Jack' to the Squid Game Doll 
 
 
 # Demo
