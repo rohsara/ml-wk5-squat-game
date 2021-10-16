@@ -65,7 +65,7 @@ function init() {
             });
 
             // Set the models initial scale
-            model.scale.set(6, 6, 6);   
+            model.scale.set(5, 5, 5);   
             model.position.y = -11;
 
             scene.add(model);
@@ -157,12 +157,12 @@ function init() {
     scene.add(floor);
 
     let geometry = new THREE.SphereGeometry(8, 32, 32);
-    let material = new THREE.MeshBasicMaterial({ color: 0x9bffaf }); // 0xf2ce2e 
+    let material = new THREE.MeshBasicMaterial({ color: 0xd5d3d6 }); // 0xf2ce2e, 0x9bffaf
     let sphere = new THREE.Mesh(geometry, material);
     sphere.position.z = -15;
     sphere.position.y = -2.5;
     sphere.position.x = -0.25;
-    scene.add(sphere);
+    // scene.add(sphere);
 }
 
 function update(){
@@ -193,7 +193,7 @@ function resizeRendererToDisplaySize(renderer) {
     const needResize = canvasPixelWidth !== width || canvasPixelHeight !== height;
     
     if (needResize) {
-      renderer.setSize(width/2, height/2, false);
+      renderer.setSize(width, height, false);
     }
     return needResize;
 }
