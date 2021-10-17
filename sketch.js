@@ -20,23 +20,26 @@ let scene,
     currentlyAnimating = false,         // Used to check whether characters neck is being used in another anim
     raycaster = new THREE.Raycaster(),  // Used to detect the click on our character
     loaderAnim = document.getElementById('js-loader');
-
-
+    
+    
 const mySoundModelURL = 'https://teachablemachine.withgoogle.com/models/G470IzpbC/' + 'model.json';
 let mySoundModel, resultDiv;
+let sfx;
     
 function preload() {
     mySoundModel = ml5.soundClassifier(mySoundModelURL);
+    sfx = loadSound('assets/robot.mp3');
 }
 
 function setup() {
+    sfx.setVolume(0.01);
     mySoundModel.classify(gotResults);
 }
 
 init();
 
 function init() {
-    const MODEL_PATH = 'squidGirl2.glb';
+    const MODEL_PATH = 'assets/squidGirl2.glb';
 
     var loader = new THREE.GLTFLoader();
 
@@ -231,7 +234,7 @@ function playModifierAnimation(from, fSpeed, to, tSpeed) {
     to.reset();
     to.play();
     from.crossFadeTo(to, fSpeed, true);
-
+    sfx.play();
     setTimeout(function() {
         from.enabled = true;
         to.crossFadeTo(from, tSpeed, true);

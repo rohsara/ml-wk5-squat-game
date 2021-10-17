@@ -1,5 +1,4 @@
-body,
-html {
+body,html {
   margin: 0;
   padding: 0;
   background: #25252B;
@@ -18,9 +17,10 @@ body {
   height: 100vh;
 }
 
-body > h1 {
-  font-family: Arial, Helvetica, sans-serif;
-  text-align: center;
+p {
+  /* font-family: Arial, Helvetica, sans-serif;
+  text-align: center; */
+  color: red;
 }
 
 .wrapper {
