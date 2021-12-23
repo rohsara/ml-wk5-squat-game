@@ -24,7 +24,7 @@ let scene,
     
 const mySoundModelURL = 'https://teachablemachine.withgoogle.com/models/G470IzpbC/' + 'model.json';
 let mySoundModel, resultDiv;
-let sfx;
+let sfx, statusEl, instructionEl, rnHearing;
     
 function preload() {
     mySoundModel = ml5.soundClassifier(mySoundModelURL);
@@ -34,13 +34,15 @@ function preload() {
 function setup() {
     sfx.setVolume(0.01);
     mySoundModel.classify(gotResults);
+    statusEl = createP('Loading model...');
+    instructionEl = createP('Try saying following keywords after model is loaded: Squat, Jumping Jack, Burpee');
+    rnHearing = createP('Hearing now...');
 }
 
 init();
 
 function init() {
     const MODEL_PATH = 'assets/squidGirl2.glb';
-
     var loader = new THREE.GLTFLoader();
 
     loader.load(
@@ -48,13 +50,7 @@ function init() {
         function(gltf) {
             model = gltf.scene;
             let fileAnimations = gltf.animations;
-        
             model.traverse(o => {
-                
-                // if (o.isBone) {
-                //     console.log(o.name);
-                // }
-
                 if (o.isMesh) {
                   o.castShadow = true;
                   o.receiveShadow = true;
@@ -66,7 +62,6 @@ function init() {
                     waist = o;
                 }
             });
-
             // Set the models initial scale
             model.scale.set(5, 5, 5);   
             model.position.y = -11;
@@ -172,21 +167,17 @@ function update(){
     if (mixer) {
         mixer.update(clock.getDelta());
     }
-
     if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
     }
-
     renderer.render(scene, camera);
     requestAnimationFrame(update);
 }
-
 update();
 
 function resizeRendererToDisplaySize(renderer) {
-    
     const canvas = renderer.domElement;
     let width = window.innerWidth;
     let height = window.innerHeight;
@@ -202,6 +193,7 @@ function resizeRendererToDisplaySize(renderer) {
 }
 
 function gotResults(err, results) {
+    statusEl.html('model loaded');
     if (err) console.log(err);
 
     if (results) {
@@ -209,20 +201,26 @@ function gotResults(err, results) {
 
         if (results[0].confidence > 0.9 && results[0].label === 'Squat') {
             console.log('squating');
+            rnHearing.html('I hear you said squat');
             squat.play();
             playModifierAnimation(idle, 0.25, squat, 0.25);
         } 
 
         else if (results[0].confidence > 0.9 && results[0].label === 'Burpee'){
             console.log('burpee');
+            rnHearing.html('I heard you said burpee');
             burpee.play();
             playModifierAnimation(idle, 0.25, burpee, 0.25);
         }
 
         else if (results[0].confidence > 0.9 && results[0].label === 'JumpingJack'){
             console.log('jumping jack');
+            rnHearing.html('I hear you said jumping jack');
             jumpingjack.play();
             playModifierAnimation(idle, 0.25, jumpingjack, 0.25);
+        }
+        else {
+            rnHearing.html('Im hearing background noises');
         }
     
     }
