@@ -1,5 +1,5 @@
 # Squat Game
-NYU ITP, Yining Shi's ML for Web FA21 
+NYU ITP, ML for Web FA21 
 
 👉 try it yourself here: https://rohsara.github.io/ml-wk5-squat-game/
 
